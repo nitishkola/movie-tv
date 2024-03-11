@@ -17,6 +17,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import axios from 'axios';
+import {useNavigate} from 'react-router-dom';
 function Copyright(props) {
   return (
     
@@ -36,34 +37,45 @@ function Copyright(props) {
 const defaultTheme = createTheme();
 
 export default function SignUp() {
-  
+  const navigate=useNavigate()
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     console.log({
       name: data.get('name'),
-      Role: data.get('Role'),
+      role: data.get('role'),
       email: data.get('email'),
       password: data.get('password')
     });
     axios.post('http://localhost:8080/register',{
       name: data.get('name'),
-      Role: data.get('Role'),
+      role: data.get('role'),
       email: data.get('email'),
       password: data.get('password')
 
     }).then(res=>{
       console.log(res.data)
     })
-
+    navigate('/Counsellor')
   };
-  const [Role, setRole] = React.useState('');
+  const [role, setRole] = React.useState('');
 
   const handleChange = (event) => {
     setRole(event.target.value);
   };
 
+  const backgroundImageStyle = {
+    // backgroundImage: `url('./Images/bg1.png')`,
+    backgroundColor: "#B0E0E6",
+    backgroundSize: 'cover',
+    backgroundRepeat: 'no-repeat',
+    minHeight: '100vh', // Adjust as needed
+    padding: '20px' // Add padding to center content
+  };
+
+
   return (
+    <div style={backgroundImageStyle}>
     <ThemeProvider theme={defaultTheme}>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
@@ -101,15 +113,15 @@ export default function SignUp() {
         <Select
           labelId="demo-simple-select-label"
           id="demo-simple-select"
-          name='Role'
-          value={Role}
+          name='role'
+          value={role}
           label="Role"
           onChange={handleChange}
         >
-          <MenuItem value={1}>Student</MenuItem>
-          <MenuItem value={2}>Visitor</MenuItem>
-          <MenuItem value={3}>Management</MenuItem>
-          <MenuItem value={3}>Counseller</MenuItem>
+          <MenuItem value={1}>User</MenuItem>
+          <MenuItem value={2}>Admin</MenuItem>
+          {/* <MenuItem value={3}>Management</MenuItem>
+          <MenuItem value={4}>Counseller</MenuItem> */}
         </Select>
       </FormControl>
     </Box>
@@ -162,5 +174,6 @@ export default function SignUp() {
         <Copyright sx={{ mt: 5 }} />
       </Container>
     </ThemeProvider>
+    </div>
   );
 }
