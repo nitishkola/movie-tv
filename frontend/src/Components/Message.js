@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import config from '../../config';
 
 class Message extends Component {
    constructor(props)
