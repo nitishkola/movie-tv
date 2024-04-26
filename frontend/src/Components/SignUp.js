@@ -18,9 +18,19 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import axios from 'axios';
 import {useNavigate} from 'react-router-dom';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+
+const validationSchema = Yup.object({
+  name: Yup.string().required('Name is required'),
+  role: Yup.string().required('Role is required'),
+  email: Yup.string().email('Invalid email format').required('Email is required'),
+  password: Yup.string().required('Password is required').min(6, 'Password should be at least 6 characters'),
+});
+
+
 function Copyright(props) {
   return (
-    
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
       <Link color="inherit" href="https://www.kluniversity.in/">
@@ -32,148 +42,106 @@ function Copyright(props) {
   );
 }
 
-// TODO remove, this demo shouldn't need to reset the theme.
-
 const defaultTheme = createTheme();
 
 export default function SignUp() {
-  const navigate=useNavigate()
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      name: data.get('name'),
-      role: data.get('role'),
-      email: data.get('email'),
-      password: data.get('password')
-    });
-    axios.post('http://localhost:8080/register',{
-      name: data.get('name'),
-      role: data.get('role'),
-      email: data.get('email'),
-      password: data.get('password')
-
-    }).then(res=>{
-      console.log(res.data)
-    })
-    navigate('/Counsellor')
-  };
+  const navigate = useNavigate();
   const [role, setRole] = React.useState('');
 
-  const handleChange = (event) => {
-    setRole(event.target.value);
-  };
+  const formik = useFormik({
+    initialValues: {
+      name: '',
+      role: '',
+      email: '',
+      password: '',
+    },
+    validationSchema: validationSchema,
+    onSubmit: (values) => {
+      console.log(values);
+      axios.post('http://localhost:8080/register', values)
+        .then((res) => {
+          console.log(res.data);
+          setRole(values.role);
+          navigate('/Movies');
+        })
+        .catch((error) => {
+          console.error('Error registering user:', error);
+        });
+    },
+  });
 
   const backgroundImageStyle = {
-    // backgroundImage: `url('./Images/bg1.png')`,
     backgroundColor: "#B0E0E6",
     backgroundSize: 'cover',
     backgroundRepeat: 'no-repeat',
-    minHeight: '100vh', // Adjust as needed
-    padding: '20px' // Add padding to center content
+    minHeight: '100vh',
+    padding: '20px'
   };
-
 
   return (
     <div style={backgroundImageStyle}>
-    <ThemeProvider theme={defaultTheme}>
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
+      <Box component="form" noValidate onSubmit={formik.handleSubmit} sx={{ mt: 3 }}>
+        <Typography variant="h4" color="black" align="center" sx={{ fontWeight: 'bold' }}>Sign Up</Typography> {/* Updated heading */}
+        <TextField
+          fullWidth
+          id="name"
+          name="name"
+          label="Name"
+          value={formik.values.name}
+          onChange={formik.handleChange}
+          error={formik.touched.name && Boolean(formik.errors.name)}
+          helperText={formik.touched.name && formik.errors.name}
+        />
+        <FormControl fullWidth>
+          <InputLabel id="role-label">Role</InputLabel>
+          <Select
+            labelId="role-label"
+            id="role"
+            name="role"
+            value={formik.values.role}
+            onChange={formik.handleChange}
+            error={formik.touched.role && Boolean(formik.errors.role)}
+          >
+            <MenuItem value="User">User</MenuItem>
+            <MenuItem value="Admin">Admin</MenuItem>
+          </Select>
+          {formik.touched.role && formik.errors.role && <Typography variant="caption" color="error">{formik.errors.role}</Typography>}
+        </FormControl>
+        <TextField
+          fullWidth
+          id="email"
+          name="email"
+          label="Email"
+          type="email"
+          value={formik.values.email}
+          onChange={formik.handleChange}
+          error={formik.touched.email && Boolean(formik.errors.email)}
+          helperText={formik.touched.email && formik.errors.email}
+        />
+        <TextField
+          fullWidth
+          id="password"
+          name="password"
+          label="Password"
+          type="password"
+          value={formik.values.password}
+          onChange={formik.handleChange}
+          error={formik.touched.password && Boolean(formik.errors.password)}
+          helperText={formik.touched.password && formik.errors.password}
+        />
+        <FormControlLabel
+          control={<Checkbox value="allowExtraEmails" color="primary" />}
+          label="I want to receive inspiration, marketing promotions and updates via email."
+        />
+        <Button
+          type="submit"
+          fullWidth
+          variant="contained"
+          sx={{ mt: 3, mb: 2 }}
         >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign up
-          </Typography>
-          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  autoComplete="given-name"
-                  name="name"
-                  required
-                  fullWidth
-                  id="name"
-                  label="name"
-                  autoFocus
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-              <Box sx={{ minWidth: 120 }}>
-      <FormControl fullWidth>
-        <InputLabel id="demo-simple-select-label">Role</InputLabel>
-        <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          name='role'
-          value={role}
-          label="Role"
-          onChange={handleChange}
-        >
-          <MenuItem value={1}>User</MenuItem>
-          <MenuItem value={2}>Admin</MenuItem>
-          {/* <MenuItem value={3}>Management</MenuItem>
-          <MenuItem value={4}>Counseller</MenuItem> */}
-        </Select>
-      </FormControl>
-    </Box>
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  name="password"
-                  label="Password"
-                  type="password"
-                  id="password"
-                  autoComplete="new-password"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <FormControlLabel
-                  control={<Checkbox value="allowExtraEmails" color="primary" />}
-                  label="I want to receive inspiration, marketing promotions and updates via email."
-                />
-              </Grid>
-            </Grid>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Sign Up
-            </Button>
-            <Grid container justifyContent="flex-end">
-              <Grid item>
-                <Link href="/SignIn" variant="body2">
-                  Already have an account? Sign in
-                </Link>
-              </Grid>
-            </Grid>
-          </Box>
-        </Box>
-        <Copyright sx={{ mt: 5 }} />
-      </Container>
-    </ThemeProvider>
+          Sign Up
+        </Button>
+      </Box>
     </div>
   );
 }
