@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-import config from '../../config';
 
 const Datafetch = () => {
     const [posts, setPosts]=useState([])

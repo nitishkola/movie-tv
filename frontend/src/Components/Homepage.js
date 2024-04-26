@@ -1,6 +1,5 @@
 import React from 'react';
 import config from '../../config';
-
 function Homepage({ loginStatus }) {
   return (
     <div>
